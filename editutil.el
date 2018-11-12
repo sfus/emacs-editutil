@@ -842,7 +842,17 @@
                  (let ((buffile (buffer-file-name)))
                    (when (and buffile (buffer-modified-p) (not buffer-read-only)
                               (file-writable-p buffile))
-                     (save-buffer))))))))
+                     ;; (save-buffer)
+                     ;;;;+ Extra
+                     (cond ((memq 'delete-trailing-whitespace before-save-hook)
+                            (remove-hook 'before-save-hook 'delete-trailing-whitespace)
+                            (save-buffer)
+                            (add-hook 'before-save-hook 'delete-trailing-whitespace))
+                           (t
+                            (save-buffer)))
+                     ;;;;+
+
+                     )))))))
 
 (defun editutil-join-line (arg)
   (interactive "p")
@@ -924,6 +934,34 @@
 (defun editutil-capitalize (arg)
   (interactive "p")
   (editutil-case-func-common #'capitalize-word #'capitalize-region arg))
+
+;;;;+ Extra
+(defun editutil-case-func-common* (word-fn region-fn arg)
+  (interactive)
+  (if (or (eolp)
+          (and (string-match "\\S-" (format "%c" (char-before)))
+               (string-match "\\s-" (format "%c" (char-after)))))
+      (progn
+        (save-excursion
+          (backward-word)
+          (editutil-case-func-common word-fn region-fn arg))
+        (if (and (eolp)
+                 (string-match "\\S-" (format "%c" (char-before))))
+            (insert-char #x20)))
+    (editutil-case-func-common word-fn region-fn arg)))
+
+(defun editutil-upcase* (arg)
+  (interactive "p")
+  (editutil-case-func-common* #'upcase-word #'upcase-region arg))
+
+(defun editutil-downcase* (arg)
+  (interactive "p")
+  (editutil-case-func-common* #'downcase-word #'downcase-region arg))
+
+(defun editutil-capitalize* (arg)
+  (interactive "p")
+  (editutil-case-func-common* #'capitalize-word #'capitalize-region arg))
+;;;;+
 
 (defun editutil-delete-horizontal-space ()
   (interactive)
@@ -1098,6 +1136,9 @@
 
   (global-set-key (kbd "C-x k") #'editutil-kill-this-buffer)
   (global-set-key (kbd "C-x K") #'editutil-restore-last-killed-buffer)
+  ;;;;+ Extra
+  (global-set-key (kbd "C-x M-k") #'editutil-restore-last-killed-buffer) ;; default: C-x K
+  ;;;;+
 
   (global-set-key (kbd "M-k") #'editutil-delete-following-spaces)
 
@@ -1113,9 +1154,15 @@
   (global-set-key (kbd "M-d") #'editutil-delete-word)
   (global-set-key (kbd "M-D") #'editutil-delete-line)
 
-  (global-set-key (kbd "M-u") #'editutil-upcase)
-  (global-set-key (kbd "M-l") #'editutil-downcase)
-  (global-set-key (kbd "M-c") #'editutil-capitalize)
+  ;; (global-set-key (kbd "M-u") #'editutil-upcase)
+  ;; (global-set-key (kbd "M-l") #'editutil-downcase)
+  ;; (global-set-key (kbd "M-c") #'editutil-capitalize)
+
+  ;;;;+ Extra
+  (global-set-key (kbd "M-u") 'editutil-upcase*)
+  (global-set-key (kbd "M-l") 'editutil-downcase*)
+  (global-set-key (kbd "M-c") 'editutil-capitalize*)
+  ;;;;+
 
   (global-set-key (kbd "M-\\") #'editutil-delete-horizontal-space)
 
@@ -1175,9 +1222,13 @@
   ;; helm-editutil
   (global-set-key (kbd "C-x C-p") 'helm-editutil-git-ls-files)
   (global-set-key (kbd "C-x C-r") 'helm-editutil-recentf-and-bookmark)
-  (global-set-key (kbd "C-x C-x") 'helm-editutil-find-files)
+  ;;(global-set-key (kbd "C-x C-x") 'helm-editutil-find-files)
   (global-set-key (kbd "C-x b") 'helm-editutil-switch-buffer)
   (global-set-key (kbd "C-M-r") 'helm-editutil-search-buffer)
+
+  ;;;;+ Extra
+  (global-set-key (kbd "C-x C-x") 'helm-editutil-recentf-and-find-files)
+  ;;;;+
 
   (with-eval-after-load 'helm
     (define-key helm-map (kbd "C-e") 'helm-editutil-select-2nd-action)

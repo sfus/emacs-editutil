@@ -133,6 +133,18 @@
     (helm :sources '(helm-editutil-source-recentf helm-source-bookmarks)
           :buffer "*helm recentf+bookmark*")))
 
+;;;;+ Extra
+
+;;;###autoload
+(defun helm-editutil-recentf-and-find-files ()
+  (interactive)
+  (let ((helm-ff-transformer-show-only-basename nil))
+    (helm :sources '(helm-editutil-source-recentf
+                     helm-editutil-source-find-files
+                     helm-editutil-source-find-directories)
+          :buffer "*helm recentf+find-files*")))
+;;;;+
+
 ;;;###autoload
 (defun helm-editutil-yas-prompt (_prompt choices &optional display-fn)
   (let* ((names (cl-loop for choice in choices
