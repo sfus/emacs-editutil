@@ -1089,8 +1089,8 @@
   "Most superior minir mode"
   t
   ""
-  `((,(kbd "C-M-j") . editutil-hippie-expand)
-    (,(kbd "M-q") . editutil-zap-to-char)
+  `(;;(,(kbd "C-M-j") . editutil-hippie-expand)
+    ;;(,(kbd "M-q") . editutil-zap-to-char)
     (,(kbd "C-M-o") . editutil-other-window)))
 
 ;;
@@ -1118,7 +1118,7 @@
   (global-set-key (kbd "C-w") #'editutil-kill-region)
   (global-set-key (kbd "M-w") #'editutil-kill-ring-save)
 
-  (global-set-key (kbd "M-q") #'editutil-zap-to-char)
+  ;;(global-set-key (kbd "M-q") #'editutil-zap-to-char) ;;;;+ Extra
 
   (global-set-key (kbd "C-M-o") #'editutil-other-window)
   (global-set-key (kbd "C-M-u") #'editutil-backward-up)
