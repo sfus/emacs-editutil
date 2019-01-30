@@ -844,7 +844,11 @@
                               (file-writable-p buffile))
                      ;; (save-buffer)
                      ;;;;+ Extra
-                     (cond ((memq 'delete-trailing-whitespace before-save-hook)
+                     (cond ((memq 'gofmt-before-save before-save-hook)
+                            (remove-hook 'before-save-hook 'gofmt-before-save)
+                            (save-buffer)
+                            (add-hook 'before-save-hook 'gofmt-before-save))
+                           ((memq 'delete-trailing-whitespace before-save-hook)
                             (remove-hook 'before-save-hook 'delete-trailing-whitespace)
                             (save-buffer)
                             (add-hook 'before-save-hook 'delete-trailing-whitespace))
